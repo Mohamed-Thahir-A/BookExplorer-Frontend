@@ -35,7 +35,17 @@ export async function GET(request: Request) {
     const data = await response.json();
     
     const transformedData = {
-      books: (data.data || []).map((product: any) => ({
+  books: (data.data || []).map((product: { 
+    id: string; 
+    title: string; 
+    author: string; 
+    price: number; 
+    category?: { title: string }; 
+    image_url: string; 
+    description?: string; 
+    rating?: number; 
+    currency?: string 
+  }) =>  ({
         id: product.id,
         title: product.title,
         author: product.author,

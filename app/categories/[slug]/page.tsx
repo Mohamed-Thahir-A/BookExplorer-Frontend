@@ -191,7 +191,7 @@ export default function CategoryPage() {
           <div className="text-6xl mb-4">📚</div>
           <h3 className="text-2xl font-bold text-gray-900 mb-4">No Books Found</h3>
           <p className="text-gray-600 mb-4">
-            No books found in the "{slug.replace(/-/g, ' ')}" category.
+            No books found in the &quot;{slug.replace(/-/g, ' ')}&quot; category.
           </p>
           
           

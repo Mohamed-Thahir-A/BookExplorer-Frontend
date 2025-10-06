@@ -38,7 +38,7 @@ export default function ProductDetailPage() {
       try {
         setLoading(true);
         const products = await getProducts();
-        const foundProduct = products.find((p: Product) => p.id === id);
+        const foundProduct = products.find((p: { id: string }) => p.id === params.id);
         setProduct(foundProduct || null);
         
         if (foundProduct) {
