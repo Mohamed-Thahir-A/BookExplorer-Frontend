@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 
 interface Book {
   id: string;
@@ -14,10 +13,9 @@ interface Book {
   image: string;
   description?: string;
   rating?: number;
-  currency?: string;
 }
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
   
@@ -66,41 +64,20 @@ export default function SearchPage() {
     return url;
   };
 
-  const getCurrencySymbol = (currency: string = 'GBP') => {
-    const symbols: { [key: string]: string } = {
-      USD: '$',
-      GBP: '£',
-      EUR: '€',
-    };
-    return symbols[currency] || currency;
-  };
-
-  return (
-    <div className="container mx-auto px-4 py-8 min-h-screen">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">
-          Search Results
-        </h1>
-        {query && (
-          <p className="text-gray-600">
-            {loading ? 'Searching for' : 'Results for'} "<span className="font-semibold">{query}</span>"
-            {!loading && totalResults > 0 && (
-              <span className="ml-2 text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                {totalResults} book{totalResults !== 1 ? 's' : ''} found
-              </span>
-            )}
-          </p>
-        )}
-      </div>
-      
-      {loading && (
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8 min-h-screen">
         <div className="text-center py-8">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Searching books...</p>
         </div>
-      )}
+      </div>
+    );
+  }
 
-      {error && (
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8 min-h-screen">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
           <p className="text-red-600">{error}</p>
           <button 
@@ -110,8 +87,26 @@ export default function SearchPage() {
             Try Again
           </button>
         </div>
-      )}
+      </div>
+    );
+  }
 
+  return (
+    <div className="container mx-auto px-4 py-8 min-h-screen">
+      <h1 className="text-3xl font-bold mb-2">
+        Search Results
+      </h1>
+      {query && (
+        <p className="text-gray-600 mb-8">
+          {loading ? 'Searching for' : 'Results for'} &quot;<span className="font-semibold">{query}</span>&quot;
+          {!loading && totalResults > 0 && (
+            <span className="ml-2 text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
+              {totalResults} book{totalResults !== 1 ? 's' : ''} found
+            </span>
+          )}
+        </p>
+      )}
+      
       {!loading && !error && (
         <>
           {books.length === 0 && query ? (
@@ -119,7 +114,7 @@ export default function SearchPage() {
               <div className="text-6xl mb-4">🔍</div>
               <h3 className="text-xl font-semibold mb-2">No books found</h3>
               <p className="text-gray-600 mb-4">
-                No books found matching "<span className="font-medium">{query}</span>".
+                No books found matching &quot;<span className="font-medium">{query}</span>&quot;.
               </p>
               <div className="space-y-2">
                 <p className="text-sm text-gray-500">Try:</p>
@@ -139,61 +134,29 @@ export default function SearchPage() {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {books.map((book) => (
-                  <div 
-                    key={book.id} 
-                    className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden group border border-gray-100"
+                  <Link 
+                    key={book.id}
+                    href={`/products/${book.id}`}
+                    className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-all duration-300 hover:border-blue-200 block"
                   >
-                    <div className="h-110 md:90 lg:80 xl:64  bg-gray-100 overflow-hidden">
+                    <div className="aspect-w-3 aspect-h-4 mb-4">
                       <img 
-                        src={getSafeImageUrl(book.image)}
+                        src={getSafeImageUrl(book.image)} 
                         alt={book.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                        onError={(e) => {
-                          e.currentTarget.src = `https://picsum.photos/256/320?random=${book.id}`;
-                        }}
+                        className="w-full h-48 object-cover rounded-md"
                       />
                     </div>
-
-                    <div className="p-4">
-                      <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 text-sm leading-tight group-hover:text-blue-600 transition-colors min-h-[3rem]">
-                        {book.title}
-                      </h3>
-                      
-                      <p className="text-xs text-gray-500 mb-3 line-clamp-1">
-                        by {book.author || 'Unknown Author'}
-                      </p>
-                      
-                      <p className="text-xs text-gray-600 mb-2 capitalize">
-                        {book.category}
-                      </p>
-
-                      {book.rating && book.rating > 0 && (
-                        <div className="flex items-center gap-2 mb-3">
-                          <div className="flex items-center bg-yellow-100 px-2 py-1 rounded">
-                            <span className="text-yellow-500 text-sm">⭐</span>
-                            <span className="ml-1 text-xs font-semibold text-yellow-700">
-                              {Number(book.rating).toFixed(1)}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <span className="text-green-600 font-bold text-lg">
-                            {getCurrencySymbol(book.currency)}{book.price}
-                          </span>
-                        </div>
-                        
-                        <Link 
-                          href={`/products/${book.id}`}
-                          className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:from-blue-600 hover:to-purple-700 transition-all shadow-sm hover:shadow-md"
-                        >
-                          View Details
-                        </Link>
+                    <h3 className="font-semibold text-lg mb-2 line-clamp-2">{book.title}</h3>
+                    <p className="text-gray-600 mb-1">by {book.author}</p>
+                    <p className="text-sm text-gray-500 mb-2 capitalize">{book.category}</p>
+                    {book.rating && (
+                      <div className="flex items-center mb-2">
+                        <span className="text-yellow-400">⭐</span>
+                        <span className="text-sm text-gray-600 ml-1">{book.rating}</span>
                       </div>
-                    </div>
-                  </div>
+                    )}
+                    <p className="text-blue-600 font-bold text-lg">${book.price}</p>
+                  </Link>
                 ))}
               </div>
             </>
@@ -201,5 +164,20 @@ export default function SearchPage() {
         </>
       )}
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8 min-h-screen">
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading search...</p>
+        </div>
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
   );
 }
