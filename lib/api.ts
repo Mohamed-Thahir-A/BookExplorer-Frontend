@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bookexplorer-backend-4hg3.onrender.com';
 
 interface FetchOptions extends RequestInit {
   timeout?: number;
@@ -34,7 +34,7 @@ function extractData(response: any) {
 export async function getProducts(): Promise<any[]> {
   try {
     console.log('Fetching products from /api/products');
-    const response = await fetch('http://localhost:3001/api/products');
+    const response = await fetch('https://bookexplorer-backend-4hg3.onrender.com/api/products');
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -75,7 +75,7 @@ export async function loadMoreCategoryProducts(slug: string, page: number): Prom
   try {
     console.log(`Loading more products for category ${slug}, page ${page}`);
     
-    const response = await fetch(`http://localhost:3001/api/categories/load-more/${slug}?page=${page}`, {
+    const response = await fetch(`https://bookexplorer-backend-4hg3.onrender.com/api/categories/load-more/${slug}?page=${page}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ export async function scrapeMoreCategoryProducts(slug: string, page: number, cur
   try {
     console.log(`Scraping more products for category: ${slug}, page: ${page}, current count: ${currentCount}`);
     
-    const response = await fetch(`http://localhost:3001/api/categories/load-more/${slug}?page=${page}&currentCount=${currentCount}`, {
+    const response = await fetch(`https://bookexplorer-backend-4hg3.onrender.com/api/categories/load-more/${slug}?page=${page}&currentCount=${currentCount}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ export async function addToWishlist(bookId: string, bookData?: any): Promise<any
 
     console.log('Adding to wishlist:', bookId);
     
-    const response = await fetch('http://localhost:3001/api/wishlist', {
+    const response = await fetch('https://bookexplorer-backend-4hg3.onrender.com/api/wishlist', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -173,7 +173,7 @@ export async function getWishlist(): Promise<any[]> {
       throw new Error('Please login to view wishlist');
     }
 
-    const response = await fetch('http://localhost:3001/api/wishlist', {
+    const response = await fetch('https://bookexplorer-backend-4hg3.onrender.com/api/wishlist', {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
@@ -198,7 +198,7 @@ export async function removeFromWishlist(bookId: string): Promise<void> {
       throw new Error('Please login to remove from wishlist');
     }
 
-    const response = await fetch('http://localhost:3001/api/wishlist', {
+    const response = await fetch('https://bookexplorer-backend-4hg3.onrender.com', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -223,7 +223,7 @@ export async function checkInWishlist(bookId: string): Promise<{ inWishlist: boo
       return { inWishlist: false };
     }
 
-    const response = await fetch(`http://localhost:3001/api/wishlist/check/${bookId}`, {
+    const response = await fetch(`https://bookexplorer-backend-4hg3.onrender.com/api/wishlist/check/${bookId}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
@@ -244,7 +244,7 @@ export async function loadMoreProducts(page: number, category?: string): Promise
   try {
     console.log(`Loading more products - Page: ${page}, Category: ${category || 'all'}`);
     
-    let url = `http://localhost:3001/api/products?page=${page}&limit=12`;
+    let url = `https://bookexplorer-backend-4hg3.onrender.com/api/products?page=${page}&limit=12`;
     if (category && category !== 'all') {
       url += `&category=${category}`;
     }
